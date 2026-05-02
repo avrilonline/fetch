@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FETCH — Dev Mode</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web/src/bold/style.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #111113;
+  --bg-tertiary: #1a1a1e;
+  --bg-elevated: #222228;
+  --bg-hover: #2a2a32;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.18);
+  --text-primary: #f0f0f2;
+  --text-secondary: #8e8e96;
+  --text-tertiary: #5a5a64;
+  --accent: #c8ff00;
+  --accent-dim: rgba(200,255,0,0.1);
+  --accent-mid: rgba(200,255,0,0.25);
+  --status-success: #3dd68c;
+  --status-error: #ff4d6a;
+  --status-warning: #ffb224;
+  --status-info: #70b8ff;
+  --status-redirect: #bf7af0;
+  --method-get: #3dd68c;
+  --method-post: #70b8ff;
+  --method-put: #ffb224;
+  --method-patch: #bf7af0;
+  --method-delete: #ff4d6a;
+  --method-head: #8e8e96;
+  --method-options: #8e8e96;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255,255,255,0.1);
+  --json-key: #c8ff00;
+  --json-string: #3dd68c;
+  --json-number: #70b8ff;
+  --json-boolean: #bf7af0;
+  --json-null: #ff4d6a;
+  --json-bracket: #5a5a64;
+  --code-tag: #70b8ff;
+  --code-attr: #c8ff00;
+  --code-string: #3dd68c;
+  --code-comment: #5a5a64;
+  --code-keyword: #bf7af0;
+  --code-number: #ffb224;
+  --code-punct: #8e8e96;
+  --code-selector: #c8ff00;
+  --code-property: #70b8ff;
+  --code-value: #f0f0f2;
+  --shadow-float: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+[data-theme="light"] {
+  --bg-primary: #f4f4f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eaeaee;
+  --bg-elevated: #ffffff;
+  --bg-hover: #e8e8ee;
+  --border-subtle: rgba(0,0,0,0.04);
+  --border-default: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.15);
+  --text-primary: #111113;
+  --text-secondary: #6e6e78;
+  --text-tertiary: #9e9ea8;
+  --accent: #5b00d4;
+  --accent-dim: rgba(91,0,212,0.06);
+  --accent-mid: rgba(91,0,212,0.15);
+  --status-success: #18794e;
+  --status-error: #cd1d4d;
+  --status-warning: #ad5700;
+  --status-info: #0077c2;
+  --status-redirect: #7c3aad;
+  --method-get: #18794e;
+  --method-post: #0077c2;
+  --method-put: #ad5700;
+  --method-patch: #7c3aad;
+  --method-delete: #cd1d4d;
+  --method-head: #6e6e78;
+  --method-options: #6e6e78;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0,0,0,0.12);
+  --json-key: #5b00d4;
+  --json-string: #18794e;
+  --json-number: #0077c2;
+  --json-boolean: #7c3aad;
+  --json-null: #cd1d4d;
+  --json-bracket: #9e9ea8;
+  --code-tag: #0077c2;
+  --code-attr: #5b00d4;
+  --code-string: #18794e;
+  --code-comment: #9e9ea8;
+  --code-keyword: #7c3aad;
+  --code-number: #ad5700;
+  --code-punct: #6e6e78;
+  --code-selector: #5b00d4;
+  --code-property: #0077c2;
+  --code-value: #111113;
+  --shadow-float: 0 8px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background 0.4s var(--ease-out), color 0.4s var(--ease-out);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Selection */
+::selection {
+  background: var(--accent-mid);
+  color: var(--text-primary);
+}
+
+/* ─── APP SHELL ─── */
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+}
+
+/* ─── TOP BAR ─── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.topbar-logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.topbar-tag {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 3px 8px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s var(--ease-out);
+}
+.btn-icon:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+.btn-icon:active { transform: scale(0.94); }
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ─── REQUEST BAR ─── */
+.request-bar {
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.request-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.method-select {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--method-get);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 90px;
+  text-align: center;
+  transition: all 0.2s var(--ease-out);
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238e8e96' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.method-select:hover { border-color: var(--border-strong); }
+.method-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+.url-input-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.url-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  padding: 10px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: all 0.2s var(--ease-out);
+}
+.url-input::placeholder { color: var(--text-tertiary); }
+.url-input:hover { border-color: var(--border-strong); }
+.url-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.btn-send {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #0a0a0b;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="light"] .btn-send { color: #ffffff; }
+.btn-send:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-send:active { transform: scale(0.97) translateY(0); }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-send .spinner {
+  display: none;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(10,10,11,0.2);
+  border-top-color: #0a0a0b;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.btn-send.loading .btn-text { display: none; }
+.btn-send.loading .spinner { display: inline-block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── CONFIG TABS (below request bar) ─── */
+.config-section {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow: hidden;
+  transition: max-height 0.35s var(--ease-out);
+}
+
+.config-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.config-tab {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  position: relative;
+}
+.config-tab:hover { color: var(--text-secondary); }
+.config-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.config-tab .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5625rem;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  margin-left: 6px;
+}
+
+.config-panel {
+  display: none;
+  padding: 16px 20px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.config-panel.active { display: block; }
+
+.kv-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.kv-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 32px;
+  gap: 8px;
+  align-items: center;
+  animation: fadeSlideIn 0.25s var(--ease-out) both;
+}
+
+.kv-input {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: border-color 0.2s var(--ease-out);
+}
+.kv-input::placeholder { color: var(--text-tertiary); }
+.kv-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+.kv-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s var(--ease-out);
+}
+.kv-remove:hover { background: rgba(255,77,106,0.1); color: var(--status-error); }
+
+.kv-add {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all 0.2s var(--ease-out);
+  width: fit-content;
+}
+.kv-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+.body-editor {
+  width: 100%;
+  min-height: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  resize: vertical;
+  transition: border-color 0.2s var(--ease-out);
+}
+.body-editor:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+/* ─── RESPONSE AREA ─── */
+.response-area {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  padding: 40px 20px;
+  text-align: center;
+  animation: fadeIn 0.5s var(--ease-out) both;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+}
+
+.empty-state-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.empty-state-sub {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* Response meta bar */
+.response-meta {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  animation: fadeSlideIn 0.3s var(--ease-out) both;
+}
+.response-meta.visible { display: flex; }
+
+.status-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+.status-badge.s2xx { background: rgba(61,214,140,0.12); color: var(--status-success); }
+.status-badge.s3xx { background: rgba(191,122,240,0.12); color: var(--status-redirect); }
+.status-badge.s4xx { background: rgba(255,77,106,0.12); color: var(--status-error); }
+.status-badge.s5xx { background: rgba(255,77,106,0.15); color: var(--status-error); }
+
+.meta-pill {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.meta-pill .meta-label { opacity: 0.6; text-transform: uppercase; letter-spacing: 0.06em; }
+.meta-pill .meta-value { color: var(--text-secondary); }
+
+.response-meta-spacer { flex: 1; }
+
+.response-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Response tabs */
+.response-tabs-bar {
+  display: none;
+  align-items: center;
+  gap: 0;
+  padding: 0 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.response-tabs-bar.visible { display: flex; }
+
+.resp-tab {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+.resp-tab:hover { color: var(--text-secondary); }
+.resp-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Response body display */
+.response-body-wrapper {
+  overflow: auto;
+  position: relative;
+}
+
+.response-body {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.75;
+  padding: 20px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 100%;
+}
+
+/* JSON syntax highlighting */
+.json-key { color: var(--json-key); }
+.json-string { color: var(--json-string); }
+.json-number { color: var(--json-number); }
+.json-boolean { color: var(--json-boolean); }
+.json-null { color: var(--json-null); }
+.json-bracket { color: var(--json-bracket); }
+.json-colon { color: var(--text-tertiary); }
+
+/* Generic code syntax highlighting */
+.tok-tag       { color: var(--code-tag); }
+.tok-tag-name  { color: var(--code-tag); font-weight: 600; }
+.tok-attr      { color: var(--code-attr); }
+.tok-string    { color: var(--code-string); }
+.tok-comment   { color: var(--code-comment); font-style: italic; }
+.tok-keyword   { color: var(--code-keyword); font-weight: 500; }
+.tok-number    { color: var(--code-number); }
+.tok-punct     { color: var(--code-punct); }
+.tok-selector  { color: var(--code-selector); font-weight: 500; }
+.tok-property  { color: var(--code-property); }
+.tok-value     { color: var(--code-value); }
+.tok-fn        { color: var(--code-tag); }
+.tok-regex     { color: var(--code-string); }
+.tok-doctype   { color: var(--code-comment); font-style: italic; }
+.tok-entity    { color: var(--code-number); }
+
+.response-body.is-code {
+  white-space: pre;
+  word-break: normal;
+  overflow-x: auto;
+}
+
+.response-body.is-code .lang-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  margin-bottom: 14px;
+  border-radius: 3px;
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* Headers table */
+.headers-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+.headers-table tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s var(--ease-out);
+}
+.headers-table tr:hover { background: var(--bg-hover); }
+.headers-table td { padding: 8px 12px; vertical-align: top; }
+.headers-table .h-name {
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+  width: 1%;
+  padding-right: 20px;
+}
+.headers-table .h-value {
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+/* Preview panel */
+#preview-resp {
+  min-height: 100%;
+}
+.preview-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  border: none;
+  background: #fff;
+}
+
+/* ─── PROXY BUTTON & POPOVER ─── */
+.btn-icon.proxy-btn { position: relative; }
+
+.btn-icon.proxy-btn .proxy-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  border: 1.5px solid var(--bg-secondary);
+  transition: background 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.btn-icon.proxy-btn[data-proxy="on"] { color: var(--status-success); border-color: rgba(61,214,140,0.3); }
+.btn-icon.proxy-btn[data-proxy="on"] .proxy-dot { background: var(--status-success); box-shadow: 0 0 0 3px rgba(61,214,140,0.18); }
+.btn-icon.proxy-btn[data-proxy="off"] .proxy-dot { background: var(--text-tertiary); }
+.btn-icon.proxy-btn[data-proxy="error"] { color: var(--status-error); border-color: rgba(255,77,106,0.3); }
+.btn-icon.proxy-btn[data-proxy="error"] .proxy-dot { background: var(--status-error); }
+.btn-icon.proxy-btn[data-proxy="checking"] .proxy-dot { background: var(--status-warning); animation: proxyPulse 1.2s ease-in-out infinite; }
+
+@keyframes proxyPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.proxy-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+  padding: 16px;
+  z-index: 150;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease-out), transform 0.25s var(--ease-spring);
+}
+.proxy-popover.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.proxy-pop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.proxy-pop-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+.proxy-pop-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+.proxy-pop-status .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+.proxy-pop-status[data-state="on"]      { color: var(--status-success); }
+.proxy-pop-status[data-state="on"] .dot { background: var(--status-success); }
+.proxy-pop-status[data-state="checking"]      { color: var(--status-warning); }
+.proxy-pop-status[data-state="checking"] .dot { background: var(--status-warning); animation: proxyPulse 1.2s ease-in-out infinite; }
+.proxy-pop-status[data-state="error"]      { color: var(--status-error); }
+.proxy-pop-status[data-state="error"] .dot { background: var(--status-error); }
+
+.proxy-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+.proxy-toggle-label {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.proxy-toggle-label small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.25s var(--ease-out);
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition: all 0.25s var(--ease-spring);
+}
+.toggle.on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.toggle.on::after {
+  left: 17px;
+  background: #0a0a0b;
+}
+[data-theme="light"] .toggle.on::after { background: #ffffff; }
+
+.proxy-pop-field {
+  margin-bottom: 12px;
+}
+.proxy-pop-field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.proxy-pop-field input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.proxy-pop-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+.proxy-pop-hint {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-subtle);
+}
+.proxy-pop-hint code {
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+/* ─── HISTORY SIDEBAR ─── */
+.history-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-out);
+}
+.history-overlay.open { opacity: 1; pointer-events: auto; }
+
+.history-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  max-width: 90vw;
+  z-index: 201;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-subtle);
+  transform: translateX(100%);
+  transition: transform 0.4s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-float);
+}
+.history-panel.open { transform: translateX(0); }
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.history-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s var(--ease-out);
+  margin-bottom: 4px;
+}
+.history-item:hover { background: var(--bg-hover); }
+
+.history-method {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.history-url {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.history-status {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.history-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-dim); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+@keyframes loadBar {
+  0% { transform: scaleX(0); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: left; }
+  50.01% { transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+.loading-bar {
+  display: none;
+  height: 2px;
+  background: var(--accent);
+  animation: loadBar 1.2s var(--ease-out) infinite;
+}
+.loading-bar.active { display: block; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-float);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s var(--ease-spring);
+}
+.toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+  .request-row { flex-wrap: wrap; }
+  .method-select { min-width: unset; flex: 0 0 auto; }
+  .url-input-wrapper { flex: 1 1 100%; order: -1; }
+  .btn-send { flex: 1; padding: 12px; }
+  .topbar-tag { display: none; }
+}
+
+@media (min-width: 900px) {
+  .request-bar { padding: 16px 32px; }
+  .config-tabs { padding: 0 32px; }
+  .config-panel { padding: 16px 32px; }
+  .response-meta { padding: 10px 32px; }
+  .response-tabs-bar { padding: 0 32px; }
+  .response-body { padding: 24px 32px; }
+  .topbar { padding: 12px 32px; }
+}
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-logo">Fetch</span>
+      <span class="topbar-tag">DEV MODE</span>
+    </div>
+    <div class="topbar-actions">
+      <div style="position:relative;">
+        <button class="btn-icon proxy-btn" id="proxyBtn" data-proxy="off" title="Proxy settings">
+          <i class="ph ph-shield"></i>
+          <span class="proxy-dot"></span>
+        </button>
+        <div class="proxy-popover" id="proxyPopover">
+          <div class="proxy-pop-header">
+            <span class="proxy-pop-title">Local proxy</span>
+            <span class="proxy-pop-status" id="proxyPopStatus" data-state="off">
+              <span class="dot"></span>
+              <span class="label">Off</span>
+            </span>
+          </div>
+          <div class="proxy-toggle-row">
+            <div class="proxy-toggle-label">
+              Route through proxy
+              <small>Strip CORS for any URL</small>
+            </div>
+            <div class="toggle" id="proxyToggle" role="switch" aria-checked="false" tabindex="0"></div>
+          </div>
+          <div class="proxy-pop-field">
+            <label for="proxyUrlInput">Proxy endpoint</label>
+            <input type="text" id="proxyUrlInput" value="https://baseline.avril.onl/proxy" spellcheck="false" autocomplete="off">
+          </div>
+          <div class="proxy-pop-hint">
+            Run <code>node proxy-server.js</code> in your terminal. The dot turns green when the proxy responds on <code>/health</code>.
+          </div>
+        </div>
+      </div>
+      <button class="btn-icon" id="historyBtn" title="History">
+        <i class="ph ph-clock-counter-clockwise"></i>
+      </button>
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">
+        <i class="ph ph-moon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Request Bar -->
+    <div>
+      <div class="request-bar">
+        <div class="request-row">
+          <select class="method-select" id="methodSelect">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+            <option value="HEAD">HEAD</option>
+            <option value="OPTIONS">OPTIONS</option>
+          </select>
+          <div class="url-input-wrapper">
+            <input type="text" class="url-input" id="urlInput" placeholder="https://api.example.com/v1/resource" spellcheck="false" autocomplete="off">
+          </div>
+          <button class="btn-send" id="sendBtn">
+            <span class="btn-text">SEND</span>
+            <span class="spinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Config Tabs -->
+      <div class="config-section" id="configSection">
+        <div class="config-tabs">
+          <button class="config-tab active" data-panel="headers-panel">Headers <span class="badge" id="headersBadge">0</span></button>
+          <button class="config-tab" data-panel="params-panel">Params <span class="badge" id="paramsBadge">0</span></button>
+          <button class="config-tab" data-panel="body-panel">Body</button>
+        </div>
+        <div class="config-panel active" id="headers-panel">
+          <div class="kv-rows" id="headersRows"></div>
+          <button class="kv-add" id="addHeader"><i class="ph ph-plus"></i> Add header</button>
+        </div>
+        <div class="config-panel" id="params-panel">
+          <div class="kv-rows" id="paramsRows"></div>
+          <button class="kv-add" id="addParam"><i class="ph ph-plus"></i> Add param</button>
+        </div>
+        <div class="config-panel" id="body-panel">
+          <textarea class="body-editor" id="bodyEditor" placeholder='{ "key": "value" }' spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+
+    <!-- Response Area -->
+    <div class="response-area" id="responseArea">
+      <div>
+        <div class="response-meta" id="responseMeta">
+          <span class="status-badge" id="statusBadge"></span>
+          <span class="meta-pill"><span class="meta-label">Time</span><span class="meta-value" id="metaTime">—</span></span>
+          <span class="meta-pill"><span class="meta-label">Size</span><span class="meta-value" id="metaSize">—</span></span>
+          <span class="meta-pill"><span class="meta-label">Type</span><span class="meta-value" id="metaType">—</span></span>
+          <span class="response-meta-spacer"></span>
+          <div class="response-actions">
+            <button class="btn-icon" id="copyBtn" title="Copy response"><i class="ph ph-copy"></i></button>
+          </div>
+        </div>
+        <div class="response-tabs-bar" id="responseTabsBar">
+          <button class="resp-tab active" data-resp-panel="body-resp">Body</button>
+          <button class="resp-tab" data-resp-panel="headers-resp">Headers</button>
+          <button class="resp-tab" data-resp-panel="preview-resp">Preview</button>
+        </div>
+      </div>
+
+      <div class="response-body-wrapper" id="responseBodyWrapper">
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon"><i class="ph ph-arrow-bend-up-left"></i></div>
+          <div class="empty-state-title">No request yet</div>
+          <div class="empty-state-sub">Enter a URL above and hit Send to inspect the response. Headers, params, and body config are ready when you need them.</div>
+        </div>
+
+        <!-- Response panels -->
+        <div id="body-resp" class="response-body" style="display:none;"></div>
+        <div id="headers-resp" style="display:none; padding:20px;">
+          <table class="headers-table" id="responseHeadersTable"><tbody></tbody></table>
+        </div>
+        <div id="preview-resp" style="display:none;">
+          <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts allow-forms allow-popups"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- History Panel -->
+<div class="history-overlay" id="historyOverlay"></div>
+<div class="history-panel" id="historyPanel">
+  <div class="history-header">
+    <h3>History</h3>
+    <button class="btn-icon" id="closeHistory"><i class="ph ph-x"></i></button>
+  </div>
+  <div class="history-list" id="historyList">
+    <div class="history-empty">No requests yet</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ─── STATE ───
+  const state = {
+    history: [],
+    currentResponse: null,
+    proxy: {
+      enabled: JSON.parse(localStorage.getItem('fetch-proxy-enabled') || 'false'),
+      url: localStorage.getItem('fetch-proxy-url') || 'https://baseline.avril.onl/proxy',
+      status: 'off', // 'off' | 'checking' | 'on' | 'error'
+    },
+  };
+
+  // ─── REFS ───
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  const urlInput = $('#urlInput');
+  const methodSelect = $('#methodSelect');
+  const sendBtn = $('#sendBtn');
+  const loadingBar = $('#loadingBar');
+  const emptyState = $('#emptyState');
+  const responseMeta = $('#responseMeta');
+  const responseTabsBar = $('#responseTabsBar');
+  const statusBadge = $('#statusBadge');
+  const bodyEditor = $('#bodyEditor');
+  const toast = $('#toast');
+
+  // ─── THEME TOGGLE ───
+  const themeToggle = $('#themeToggle');
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('fetch-theme', t);
+    themeToggle.querySelector('i').className = t === 'dark' ? 'ph ph-sun' : 'ph ph-moon';
+  }
+  themeToggle.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    setTheme(cur === 'dark' ? 'light' : 'dark');
+  });
+  const savedTheme = localStorage.getItem('fetch-theme');
+  if (savedTheme) setTheme(savedTheme);
+
+  // ─── PROXY CONTROLS ───
+  const proxyBtn = $('#proxyBtn');
+  const proxyPopover = $('#proxyPopover');
+  const proxyToggle = $('#proxyToggle');
+  const proxyUrlInput = $('#proxyUrlInput');
+  const proxyPopStatus = $('#proxyPopStatus');
+
+  proxyUrlInput.value = state.proxy.url;
+
+  function setProxyStatus(s) {
+    state.proxy.status = s;
+    proxyBtn.dataset.proxy = s;
+    proxyPopStatus.dataset.state = s;
+    const icon = proxyBtn.querySelector('i');
+    icon.className = s === 'on' ? 'ph-bold ph-shield-check'
+                   : s === 'error' ? 'ph-bold ph-shield-warning'
+                   : 'ph ph-shield';
+    const labels = { off: 'Off', checking: 'Checking…', on: 'Connected', error: 'Unreachable' };
+    proxyPopStatus.querySelector('.label').textContent = labels[s];
+  }
+
+  function setProxyToggle(on) {
+    state.proxy.enabled = on;
+    localStorage.setItem('fetch-proxy-enabled', JSON.stringify(on));
+    proxyToggle.classList.toggle('on', on);
+    proxyToggle.setAttribute('aria-checked', String(on));
+    if (on) {
+      checkProxyHealth();
+    } else {
+      setProxyStatus('off');
+    }
+  }
+
+  let healthCheckCtrl = null;
+  let healthCheckTimer = null;
+  async function checkProxyHealth() {
+    if (!state.proxy.enabled) return;
+    if (healthCheckCtrl) healthCheckCtrl.abort();
+    healthCheckCtrl = new AbortController();
+    setProxyStatus('checking');
+    const t = setTimeout(() => healthCheckCtrl && healthCheckCtrl.abort(), 3500);
+    try {
+      const res = await fetch(`${state.proxy.url.replace(/\/$/, '')}/health`, {
+        signal: healthCheckCtrl.signal,
+      });
+      clearTimeout(t);
+      const j = await res.json();
+      if (j && j.service === 'fetch-dev-proxy') {
+        setProxyStatus('on');
+      } else {
+        setProxyStatus('error');
+      }
+    } catch {
+      clearTimeout(t);
+      setProxyStatus('error');
+    }
+  }
+
+  function schedulePeriodicHealthCheck() {
+    if (healthCheckTimer) clearInterval(healthCheckTimer);
+    healthCheckTimer = setInterval(() => {
+      if (state.proxy.enabled) checkProxyHealth();
+    }, 15000);
+  }
+
+  proxyBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    proxyPopover.classList.toggle('open');
+    if (proxyPopover.classList.contains('open') && state.proxy.enabled) {
+      checkProxyHealth();
+    }
+  });
+  document.addEventListener('click', e => {
+    if (!proxyPopover.contains(e.target) && !proxyBtn.contains(e.target)) {
+      proxyPopover.classList.remove('open');
+    }
+  });
+  proxyToggle.addEventListener('click', () => setProxyToggle(!state.proxy.enabled));
+  proxyToggle.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      setProxyToggle(!state.proxy.enabled);
+    }
+  });
+  proxyUrlInput.addEventListener('change', () => {
+    state.proxy.url = proxyUrlInput.value.trim() || 'https://baseline.avril.onl/proxy';
+    localStorage.setItem('fetch-proxy-url', state.proxy.url);
+    if (state.proxy.enabled) checkProxyHealth();
+  });
+
+  // Initial state restore
+  setProxyToggle(state.proxy.enabled);
+  schedulePeriodicHealthCheck();
+
+  // ─── METHOD COLOR ───
+  function updateMethodColor() {
+    const m = methodSelect.value.toLowerCase();
+    methodSelect.style.color = `var(--method-${m})`;
+  }
+  methodSelect.addEventListener('change', updateMethodColor);
+  updateMethodColor();
+
+  // ─── CONFIG TABS ───
+  $$('.config-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      $$('.config-tab').forEach(t => t.classList.remove('active'));
+      $$('.config-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      $(`#${tab.dataset.panel}`).classList.add('active');
+    });
+  });
+
+  // ─── KV ROWS ───
+  function createKVRow(container, badgeId) {
+    const row = document.createElement('div');
+    row.className = 'kv-row';
+    row.innerHTML = `
+      <input class="kv-input kv-key" placeholder="Key" spellcheck="false">
+      <input class="kv-input kv-val" placeholder="Value" spellcheck="false">
+      <button class="kv-remove"><i class="ph ph-x"></i></button>
+    `;
+    row.querySelector('.kv-remove').addEventListener('click', () => {
+      row.remove();
+      updateBadge(container, badgeId);
+    });
+    const inputs = row.querySelectorAll('.kv-input');
+    inputs.forEach(inp => inp.addEventListener('input', () => updateBadge(container, badgeId)));
+    container.appendChild(row);
+    updateBadge(container, badgeId);
+  }
+
+  function updateBadge(container, badgeId) {
+    const filled = container.querySelectorAll('.kv-row').length;
+    const badge = $(`#${badgeId}`);
+    badge.textContent = filled;
+  }
+
+  function getKVPairs(container) {
+    const pairs = {};
+    container.querySelectorAll('.kv-row').forEach(row => {
+      const k = row.querySelector('.kv-key').value.trim();
+      const v = row.querySelector('.kv-val').value.trim();
+      if (k) pairs[k] = v;
+    });
+    return pairs;
+  }
+
+  $('#addHeader').addEventListener('click', () => createKVRow($('#headersRows'), 'headersBadge'));
+  $('#addParam').addEventListener('click', () => createKVRow($('#paramsRows'), 'paramsBadge'));
+
+  // ─── RESPONSE TABS ───
+  $$('.resp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      $$('.resp-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      showRespPanel(tab.dataset.respPanel);
+    });
+  });
+
+  function showRespPanel(id) {
+    ['body-resp', 'headers-resp', 'preview-resp'].forEach(p => {
+      $(`#${p}`).style.display = p === id ? (p === 'preview-resp' ? 'block' : 'block') : 'none';
+    });
+  }
+
+  // ─── TOAST ───
+  let toastTimer;
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  // ─── JSON HIGHLIGHT ───
+  function highlightJSON(obj, indent = 0) {
+    const pad = '  '.repeat(indent);
+    const padInner = '  '.repeat(indent + 1);
+
+    if (obj === null) return `<span class="json-null">null</span>`;
+    if (typeof obj === 'boolean') return `<span class="json-boolean">${obj}</span>`;
+    if (typeof obj === 'number') return `<span class="json-number">${obj}</span>`;
+    if (typeof obj === 'string') {
+      const escaped = obj.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return `<span class="json-string">"${escaped}"</span>`;
+    }
+
+    if (Array.isArray(obj)) {
+      if (obj.length === 0) return `<span class="json-bracket">[]</span>`;
+      let items = obj.map(v => padInner + highlightJSON(v, indent + 1));
+      return `<span class="json-bracket">[</span>\n${items.join(',\n')}\n${pad}<span class="json-bracket">]</span>`;
+    }
+
+    const keys = Object.keys(obj);
+    if (keys.length === 0) return `<span class="json-bracket">{}</span>`;
+
+    let entries = keys.map(k => {
+      const keyEsc = k.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return `${padInner}<span class="json-key">"${keyEsc}"</span><span class="json-colon">:</span> ${highlightJSON(obj[k], indent + 1)}`;
+    });
+    return `<span class="json-bracket">{</span>\n${entries.join(',\n')}\n${pad}<span class="json-bracket">}</span>`;
+  }
+
+  // ─── CODE HIGHLIGHTERS ───
+  const escapeHTML = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Tokenize-by-regex helper. Walks `patterns` in order, wraps the first match in a span.
+  function tokenize(src, patterns) {
+    let out = '';
+    let i = 0;
+    while (i < src.length) {
+      let matched = false;
+      for (const [cls, re] of patterns) {
+        re.lastIndex = i;
+        const m = re.exec(src);
+        if (m && m.index === i) {
+          out += cls
+            ? `<span class="tok-${cls}">${escapeHTML(m[0])}</span>`
+            : escapeHTML(m[0]);
+          i += m[0].length;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        out += escapeHTML(src[i]);
+        i++;
+      }
+    }
+    return out;
+  }
+
+  // HTML / XML
+  function highlightHTML(src) {
+    let out = '';
+    let i = 0;
+    const len = src.length;
+
+    while (i < len) {
+      // Comments
+      if (src.startsWith('<!--', i)) {
+        const end = src.indexOf('-->', i);
+        const close = end === -1 ? len : end + 3;
+        out += `<span class="tok-comment">${escapeHTML(src.slice(i, close))}</span>`;
+        i = close;
+        continue;
+      }
+      // DOCTYPE
+      if (/^<!doctype\s/i.test(src.slice(i, i + 16))) {
+        const end = src.indexOf('>', i);
+        const close = end === -1 ? len : end + 1;
+        out += `<span class="tok-doctype">${escapeHTML(src.slice(i, close))}</span>`;
+        i = close;
+        continue;
+      }
+      // <script> ... <\/script>
+      const scriptMatch = /^<script\b[^>]*>/i.exec(src.slice(i));
+      if (scriptMatch) {
+        const openLen = scriptMatch[0].length;
+        out += highlightTagOpen(scriptMatch[0]);
+        const close = src.toLowerCase().indexOf('<\/script>', i + openLen);
+        const bodyEnd = close === -1 ? len : close;
+        out += highlightJS(src.slice(i + openLen, bodyEnd));
+        i = bodyEnd;
+        continue;
+      }
+      // <style> ... <\/style>
+      const styleMatch = /^<style\b[^>]*>/i.exec(src.slice(i));
+      if (styleMatch) {
+        const openLen = styleMatch[0].length;
+        out += highlightTagOpen(styleMatch[0]);
+        const close = src.toLowerCase().indexOf('<\/style>', i + openLen);
+        const bodyEnd = close === -1 ? len : close;
+        out += highlightCSS(src.slice(i + openLen, bodyEnd));
+        i = bodyEnd;
+        continue;
+      }
+      // Tag
+      if (src[i] === '<') {
+        const end = src.indexOf('>', i);
+        const close = end === -1 ? len : end + 1;
+        out += highlightTagOpen(src.slice(i, close));
+        i = close;
+        continue;
+      }
+      // Entity
+      const entMatch = /^&[#a-z0-9]+;/i.exec(src.slice(i, i + 12));
+      if (entMatch) {
+        out += `<span class="tok-entity">${escapeHTML(entMatch[0])}</span>`;
+        i += entMatch[0].length;
+        continue;
+      }
+      // Text
+      const next = src.indexOf('<', i);
+      const nextEnt = src.indexOf('&', i);
+      let stop = next === -1 ? len : next;
+      if (nextEnt !== -1 && nextEnt < stop) stop = nextEnt;
+      out += escapeHTML(src.slice(i, stop));
+      i = stop;
+    }
+    return out;
+  }
+
+  function highlightTagOpen(tag) {
+    // tag starts with '<' and ends with '>'
+    return tag.replace(
+      /^(<\/?)([a-zA-Z][\w:-]*)([^>]*?)(\/?>)$/,
+      (_, open, name, attrs, close) => {
+        const attrHtml = attrs.replace(
+          /([a-zA-Z_:][\w:.-]*)(\s*=\s*)("[^"]*"|'[^']*'|[^\s>]+)?/g,
+          (m, n, eq, v) => {
+            let s = `<span class="tok-attr">${escapeHTML(n)}</span>`;
+            if (eq) s += `<span class="tok-punct">${escapeHTML(eq)}</span>`;
+            if (v) s += `<span class="tok-string">${escapeHTML(v)}</span>`;
+            return s;
+          }
+        );
+        return `<span class="tok-punct">${escapeHTML(open)}</span>` +
+               `<span class="tok-tag-name">${escapeHTML(name)}</span>` +
+               attrHtml +
+               `<span class="tok-punct">${escapeHTML(close)}</span>`;
+      }
+    );
+  }
+
+  // CSS
+  function highlightCSS(src) {
+    return tokenize(src, [
+      ['comment',  /\/\*[\s\S]*?\*\//y],
+      ['string',   /"(?:\\.|[^"\\])*"/y],
+      ['string',   /'(?:\\.|[^'\\])*'/y],
+      ['keyword',  /@[a-z-]+/iy],
+      ['number',   /-?\d+(?:\.\d+)?(?:px|em|rem|vh|vw|%|s|ms|deg|fr|ch|ex|cm|mm|in|pt|pc|vmin|vmax)?\b/y],
+      ['number',   /#[0-9a-fA-F]{3,8}\b/y],
+      ['property', /[a-zA-Z-]+(?=\s*:)/y],
+      ['selector', /[.#]?[a-zA-Z_][\w-]*(?=[^{};]*\{)/y],
+      ['punct',    /[{}();,:]/y],
+      [null,       /\s+/y],
+      [null,       /[a-zA-Z_][\w-]*/y],
+    ]);
+  }
+
+  // JavaScript
+  function highlightJS(src) {
+    const KEYWORDS = new Set([
+      'await','async','break','case','catch','class','const','continue','debugger',
+      'default','delete','do','else','export','extends','false','finally','for',
+      'from','function','get','if','import','in','instanceof','let','new','null',
+      'of','return','set','static','super','switch','this','throw','true','try',
+      'typeof','undefined','var','void','while','with','yield'
+    ]);
+    return tokenize(src, [
+      ['comment',  /\/\/[^\n]*/y],
+      ['comment',  /\/\*[\s\S]*?\*\//y],
+      ['string',   /"(?:\\.|[^"\\])*"/y],
+      ['string',   /'(?:\\.|[^'\\])*'/y],
+      ['string',   /`(?:\\.|[^`\\])*`/y],
+      ['regex',    /\/(?:\\.|[^/\\\n])+\/[gimsuy]*(?=[\s,;).\]}])/y],
+      ['number',   /-?(?:0[xX][0-9a-fA-F]+|\d+(?:\.\d+)?(?:e[+-]?\d+)?)\b/y],
+      [null,       /\s+/y],
+    ].concat([
+      ['__ident',  /[a-zA-Z_$][\w$]*/y],
+    ])).replace(/<span class="tok-__ident">([^<]+)<\/span>/g, (_, w) => {
+      if (KEYWORDS.has(w)) return `<span class="tok-keyword">${w}</span>`;
+      return w;
+    });
+  }
+
+  // Detect language from content-type / body
+  function detectLang(contentType, body) {
+    const ct = (contentType || '').toLowerCase();
+    if (ct.includes('json')) return 'json';
+    if (ct.includes('html')) return 'html';
+    if (ct.includes('xml')) return 'xml';
+    if (ct.includes('javascript') || ct.includes('ecmascript')) return 'js';
+    if (ct.includes('css')) return 'css';
+    if (ct.includes('text/plain')) return 'text';
+    // Sniff body
+    const head = body.trimStart().slice(0, 100);
+    if (/^[\[{]/.test(head)) return 'json';
+    if (/^<!doctype html|^<html|^<head|^<body/i.test(head)) return 'html';
+    if (/^<\?xml|^<[a-z][\w:-]*\b/i.test(head)) return 'xml';
+    return 'text';
+  }
+
+  // ─── FORMAT SIZE ───
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  // ─── COPY ───
+  $('#copyBtn').addEventListener('click', () => {
+    if (state.currentResponse) {
+      navigator.clipboard.writeText(state.currentResponse.body).then(() => showToast('Copied to clipboard'));
+    }
+  });
+
+  // ─── HISTORY ───
+  function openHistory() {
+    $('#historyOverlay').classList.add('open');
+    $('#historyPanel').classList.add('open');
+  }
+  function closeHistory() {
+    $('#historyOverlay').classList.remove('open');
+    $('#historyPanel').classList.remove('open');
+  }
+  $('#historyBtn').addEventListener('click', openHistory);
+  $('#closeHistory').addEventListener('click', closeHistory);
+  $('#historyOverlay').addEventListener('click', closeHistory);
+
+  function renderHistory() {
+    const list = $('#historyList');
+    if (state.history.length === 0) {
+      list.innerHTML = '<div class="history-empty">No requests yet</div>';
+      return;
+    }
+    list.innerHTML = state.history.map((h, i) => {
+      const sc = h.status >= 200 && h.status < 300 ? 'color:var(--status-success)' :
+                 h.status >= 300 && h.status < 400 ? 'color:var(--status-redirect)' :
+                 'color:var(--status-error)';
+      const mc = `color:var(--method-${h.method.toLowerCase()})`;
+      return `<div class="history-item" data-index="${i}">
+        <span class="history-method" style="${mc};background:transparent">${h.method}</span>
+        <span class="history-url">${h.url}</span>
+        <span class="history-status" style="${sc}">${h.status || 'ERR'}</span>
+      </div>`;
+    }).reverse().join('');
+
+    list.querySelectorAll('.history-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const idx = parseInt(item.dataset.index);
+        const h = state.history[idx];
+        urlInput.value = h.url;
+        methodSelect.value = h.method;
+        updateMethodColor();
+        displayResponse(h.response);
+        closeHistory();
+      });
+    });
+  }
+
+  // ─── SEND REQUEST ───
+  async function sendRequest() {
+    let url = urlInput.value.trim();
+    if (!url) { showToast('Enter a URL'); urlInput.focus(); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+    const method = methodSelect.value;
+    const headers = getKVPairs($('#headersRows'));
+    const params = getKVPairs($('#paramsRows'));
+    const body = bodyEditor.value.trim();
+
+    // Append params
+    if (Object.keys(params).length) {
+      const u = new URL(url);
+      Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
+      url = u.toString();
+    }
+
+    // Build fetch opts
+    const opts = { method, headers: {} };
+    Object.entries(headers).forEach(([k, v]) => opts.headers[k] = v);
+    if (['POST', 'PUT', 'PATCH'].includes(method) && body) {
+      opts.body = body;
+      if (!opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+    }
+
+    // Route through proxy if enabled
+    const targetUrl = url;
+    let fetchUrl = url;
+    if (state.proxy.enabled) {
+      const base = state.proxy.url.replace(/\/$/, '');
+      fetchUrl = `${base}/proxy?url=${encodeURIComponent(url)}`;
+    }
+
+    // Fetch defaults that play nice with file:// origins and dev proxies
+    opts.mode = 'cors';
+    opts.credentials = 'omit';
+    opts.cache = 'no-store';
+    opts.redirect = 'follow';
+
+    // UI loading state
+    sendBtn.classList.add('loading');
+    sendBtn.disabled = true;
+    loadingBar.classList.add('active');
+    emptyState.style.display = 'none';
+
+    // Hard timeout so the spinner can't get stuck if something hangs
+    const ctrl = new AbortController();
+    opts.signal = ctrl.signal;
+    const timeoutMs = 30_000;
+    const timer = setTimeout(() => ctrl.abort(new DOMException('Request timed out after 30s', 'TimeoutError')), timeoutMs);
+
+    const startTime = performance.now();
+
+    try {
+      const res = await fetch(fetchUrl, opts);
+      clearTimeout(timer);
+      const elapsed = performance.now() - startTime;
+      const rawBody = await res.text();
+      const size = new Blob([rawBody]).size;
+      const ct = res.headers.get('content-type') || '';
+
+      // Extract headers
+      const resHeaders = {};
+      res.headers.forEach((v, k) => resHeaders[k] = v);
+
+      const responseData = {
+        status: res.status,
+        statusText: res.statusText,
+        headers: resHeaders,
+        body: rawBody,
+        contentType: ct,
+        time: elapsed,
+        size: size,
+      };
+
+      state.history.push({ url: targetUrl, method, status: res.status, response: responseData });
+      renderHistory();
+      displayResponse(responseData);
+    } catch (err) {
+      clearTimeout(timer);
+      const elapsed = performance.now() - startTime;
+      const aborted = err && (err.name === 'AbortError' || err.name === 'TimeoutError');
+
+      // Re-probe the proxy synchronously so the next message is honest
+      let hint;
+      if (aborted) {
+        hint = `\n• The request was aborted or timed out (${Math.round(elapsed)}ms)`;
+      } else if (state.proxy.enabled && state.proxy.status === 'on') {
+        hint = `\n• Proxy is reachable, but the request failed before reaching it\n  → Likely a CORS preflight rejection or the browser blocking file:// → http://localhost\n  → Open DevTools → Network for the real error`;
+      } else if (state.proxy.enabled) {
+        hint = `\n• The proxy at ${state.proxy.url} is not responding\n  → Run \`node proxy-server.js\` in your terminal\n  → Or check that the endpoint URL matches`;
+      } else {
+        hint = `\n• CORS is blocking the request — turn on the proxy (shield icon)\n• The server is unreachable or the URL is invalid`;
+      }
+
+      const errData = {
+        status: 0,
+        statusText: aborted ? 'Aborted' : 'Network Error',
+        headers: {},
+        body: `Error: ${err.message || err}\n\nThis could mean:${hint}`,
+        contentType: 'text/plain',
+        time: elapsed,
+        size: 0,
+      };
+      state.history.push({ url: targetUrl, method, status: 0, response: errData });
+      renderHistory();
+      displayResponse(errData);
+      if (state.proxy.enabled) checkProxyHealth();
+    } finally {
+      clearTimeout(timer);
+      sendBtn.classList.remove('loading');
+      sendBtn.disabled = false;
+      loadingBar.classList.remove('active');
+    }
+  }
+
+  function displayResponse(data) {
+    state.currentResponse = data;
+
+    // Meta bar
+    responseMeta.classList.add('visible');
+    responseTabsBar.classList.add('visible');
+
+    // Status badge
+    const s = data.status;
+    statusBadge.textContent = s ? `${s} ${data.statusText}` : 'ERROR';
+    statusBadge.className = 'status-badge ' + (
+      s >= 200 && s < 300 ? 's2xx' :
+      s >= 300 && s < 400 ? 's3xx' :
+      s >= 400 && s < 500 ? 's4xx' : 's5xx'
+    );
+
+    // Meta pills
+    $('#metaTime').textContent = data.time < 1000 ? Math.round(data.time) + 'ms' : (data.time / 1000).toFixed(2) + 's';
+    $('#metaSize').textContent = formatSize(data.size);
+    $('#metaType').textContent = data.contentType.split(';')[0] || '—';
+
+    // Body
+    const bodyEl = $('#body-resp');
+    const ct = data.contentType.toLowerCase();
+    const lang = detectLang(ct, data.body);
+
+    bodyEl.classList.remove('is-code');
+    let langTag = '';
+    if (lang !== 'text') {
+      bodyEl.classList.add('is-code');
+      langTag = `<div class="lang-tag">${lang}</div>`;
+    }
+
+    if (lang === 'json') {
+      try {
+        const parsed = JSON.parse(data.body);
+        bodyEl.innerHTML = langTag + highlightJSON(parsed);
+      } catch {
+        bodyEl.textContent = data.body;
+      }
+    } else if (lang === 'html' || lang === 'xml') {
+      bodyEl.innerHTML = langTag + highlightHTML(data.body);
+    } else if (lang === 'css') {
+      bodyEl.innerHTML = langTag + highlightCSS(data.body);
+    } else if (lang === 'js') {
+      bodyEl.innerHTML = langTag + highlightJS(data.body);
+    } else {
+      bodyEl.textContent = data.body;
+    }
+
+    // Headers table
+    const tbody = $('#responseHeadersTable tbody');
+    tbody.innerHTML = Object.entries(data.headers).map(([k, v]) =>
+      `<tr><td class="h-name">${k}</td><td class="h-value">${v}</td></tr>`
+    ).join('');
+
+    // Preview (HTML responses)
+    const previewFrame = $('#previewFrame');
+    const autosizeScript = `<script>(function(){function send(){var h=Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0);parent.postMessage({__previewHeight:h},'*');}window.addEventListener('load',send);if(window.ResizeObserver){new ResizeObserver(send).observe(document.documentElement);}else{setInterval(send,500);}send();})();<\/script>`;
+    if (ct.includes('html') || lang === 'html') {
+      // Inject <base> so relative URLs resolve back to the original origin (or via the proxy when active).
+      const target = state.history[state.history.length - 1];
+      const targetUrl = target && target.url ? target.url : '';
+      let baseHref = '';
+      try {
+        const u = new URL(targetUrl);
+        baseHref = state.proxy.enabled
+          ? `${state.proxy.url.replace(/\/$/, '')}/proxy?url=${encodeURIComponent(u.origin + '/')}`
+          : u.origin + '/';
+      } catch {}
+      let html = data.body;
+      if (baseHref && !/<base\s/i.test(html)) {
+        const baseTag = `<base href="${baseHref.replace(/"/g, '&quot;')}">`;
+        if (/<head[^>]*>/i.test(html)) {
+          html = html.replace(/<head([^>]*)>/i, `<head$1>${baseTag}`);
+        } else {
+          html = baseTag + html;
+        }
+      }
+      if (/<\/body>/i.test(html)) {
+        html = html.replace(/<\/body>/i, autosizeScript + '</body>');
+      } else {
+        html = html + autosizeScript;
+      }
+      previewFrame.srcdoc = html;
+    } else {
+      previewFrame.srcdoc = `<html><body style="font-family:ui-monospace,monospace;padding:2em;color:#666;font-size:13px;">Preview not available for this content type.</body>${autosizeScript}</html>`;
+    }
+
+    // Show body panel by default
+    $$('.resp-tab').forEach(t => t.classList.remove('active'));
+    $$('.resp-tab')[0].classList.add('active');
+    showRespPanel('body-resp');
+  }
+
+  // Resize the preview iframe to match its content so the response wrapper handles scrolling.
+  window.addEventListener('message', (e) => {
+    if (e.source === $('#previewFrame').contentWindow && e.data && typeof e.data.__previewHeight === 'number') {
+      $('#previewFrame').style.height = Math.max(e.data.__previewHeight, 0) + 'px';
+    }
+  });
+
+  // Event listeners
+  sendBtn.addEventListener('click', sendRequest);
+  urlInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendRequest();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      sendRequest();
+    }
+    if (e.key === 'Escape') {
+      closeHistory();
+    }
+  });
+
+  // Focus URL on load
+  setTimeout(() => urlInput.focus(), 100);
+
+})();
+</script>
+
+</body>
+</html>

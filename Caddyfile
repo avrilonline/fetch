@@ -1,0 +1,4 @@
+fetch.avril.onl {
+	root * /home/admin/.openclaw/workspace/projects/fetch.avril.onl
+	file_server
+}
