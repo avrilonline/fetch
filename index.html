@@ -1710,7 +1710,7 @@ body {
     let fetchUrl = url;
     if (state.proxy.enabled) {
       const base = state.proxy.url.replace(/\/$/, '');
-      fetchUrl = `${base}/proxy?url=${encodeURIComponent(url)}`;
+      fetchUrl = base.endsWith('/proxy') ? `${base}?url=${encodeURIComponent(url)}` : `${base}/proxy?url=${encodeURIComponent(url)}`;
     }
 
     // Fetch defaults that play nice with file:// origins and dev proxies
